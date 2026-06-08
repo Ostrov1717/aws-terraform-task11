@@ -76,11 +76,9 @@ variable "green_launch_template_name" {
 variable "blue_weight" {
   description = "Weight of traffic to send to the Blue target group (0-100)"
   type        = number
-  default     = 100
 }
 
 variable "green_weight" {
   description = "Weight of traffic to send to the Green target group (0-100)"
   type        = number
-  default     = 0
 }
