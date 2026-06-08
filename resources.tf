@@ -82,16 +82,21 @@ resource "aws_lb_listener" "http" {
 resource "aws_launch_template" "blue" {
   name          = var.blue_launch_template_name
   image_id      = data.aws_ami.amazon_linux.id
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
 
   vpc_security_group_ids = [
     data.aws_security_group.ssh_inbound.id,
     data.aws_security_group.http_inbound.id
   ]
 
-  user_data = base64encode(templatefile("user_data.sh.tpl", {
-    color = "Blue"
-    })
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    dnf update -y
+    dnf install -y httpd
+    systemctl start httpd
+    systemctl enable httpd
+    echo "<h1>Blue Environment</h1>" > /var/www/html/index.html
+  EOF
   )
 
   tag_specifications {
@@ -111,16 +116,22 @@ resource "aws_launch_template" "blue" {
 resource "aws_launch_template" "green" {
   name          = var.green_launch_template_name
   image_id      = data.aws_ami.amazon_linux.id
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
 
   vpc_security_group_ids = [
     data.aws_security_group.ssh_inbound.id,
     data.aws_security_group.http_inbound.id
   ]
 
-  user_data = base64encode(templatefile("user_data.sh.tpl", {
-    color = "Green"
-  }))
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    dnf update -y
+    dnf install -y httpd
+    systemctl start httpd
+    systemctl enable httpd
+    echo "<h1>Green Environment</h1>" > /var/www/html/index.html
+  EOF
+  )
 
   tag_specifications {
     resource_type = "instance"
